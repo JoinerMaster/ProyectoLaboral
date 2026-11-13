@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
+import { TaskStatus } from '../enums/TaskStatus';
 
-type Tarea = {
+type Task = {
   id: string;
   title: string;
   description: string;
@@ -10,115 +11,102 @@ type Tarea = {
 };
 
 type Props = {
-  onGuardar: (tarea: Tarea) => void;
-  onCancelar: () => void;
+  onSave: (task: Task) => void;
+  onCancel: () => void;
 };
 
-export default function NuevaTarea({ onGuardar, onCancelar }: Props) {
+export default function NewTask({ onSave, onCancel }: Props) {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [prioridad, setPrioridad] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [mensajeModal, setMensajeModal] = useState('');
-
-  const mostrarAviso = (mensaje: string) => {
-    setMensajeModal(mensaje);
-    setModalVisible(true);
+  const showAlert = (message: string) => {
+    setModalMessage(message);
+    setIsModalVisible(true);
   };
 
-
-  const guardarTarea = () => {
-    if (nombre.trim() === '') {
-      mostrarAviso(
-        'Escribe el nombre de la tarea.'
-      );
+  const saveTask = () => {
+    if (title.trim() === '') {
+      showAlert('Escribe el nombre de la tarea.');
       return;
     }
 
-    if (descripcion.trim() === '') {
-      mostrarAviso(
-        'Escribe la descripción de la tarea.'
-      );
+    if (description.trim() === '') {
+      showAlert('Escribe la descripción de la tarea.');
       return;
     }
 
-    if (prioridad.trim() === '') {
-      mostrarAviso(
-        'Seleccione el tipo de prioridad.'
-      );
+    if (priority.trim() === '') {
+      showAlert('Seleccione el tipo de prioridad.');
       return;
     }
 
-    onGuardar({
+    onSave({
       id: Date.now().toString(),
-      title: nombre.trim(),
-      description: descripcion.trim(),
-      priority: prioridad,
-      status: 'Pendiente',
+      title: title.trim(),
+      description: description.trim(),
+      priority: priority,
+      status: TaskStatus.Pending,
     });
   };
 
-  const coloresPrioridad: Record<string, string> = {
-    Baja: '#2878D0',
-    Media: '#F2C230',
-    Alta: '#D93636',
-  };
-
-
   return (
-    
     <View style={styles.container}>
-      <Text style={styles.titulo}>Nueva Tarea</Text>
-      <Text style={styles.etiqueta}>
+      <Text style={styles.mainTitle}>Nueva Tarea</Text>
+
+      <Text style={styles.label}>
         Nombre de la tarea
       </Text>
 
       <TextInput
         style={styles.input}
         placeholder="Ej. Compras viveres"
-        value={nombre}
-        onChangeText={setNombre}
+        value={title}
+        onChangeText={setTitle}
       />
 
-      <Text style={styles.subtitulo}>Descripción</Text>
+      <Text style={styles.subtitle}>Descripción</Text>
 
       <TextInput
-        style={[styles.input, styles.areaTexto]}
+        style={[styles.input, styles.textArea]}
         placeholder="Agrega una descripción..."
-        value={descripcion}
-        onChangeText={setDescripcion}
+        value={description}
+        onChangeText={setDescription}
         multiline
         textAlignVertical="top"
       />
 
-      <Text style={styles.subtitulo}>Prioridad</Text>
+      <Text style={styles.subtitle}>Prioridad</Text>
 
-      <View style={styles.opciones}>
-        {['Baja', 'Media', 'Alta'].map((opcion) => {
-          const seleccionado = prioridad === opcion;
-          const color = coloresPrioridad[opcion];
+      <View style={styles.options}>
+        {['Baja', 'Media', 'Alta'].map((option) => {
+          const isSelected = priority === option;
+
+          const priorityStyle =
+            option === 'Baja'
+              ? styles.lowPriority
+              : option === 'Media'
+                ? styles.mediumPriority
+                : styles.highPriority;
 
           return (
             <Pressable
-              key={opcion}
+              key={option}
               style={[
-                styles.botonPrioridad,
-                { borderColor: '#acabab' },
-                seleccionado && { backgroundColor: color, borderColor: color },
+                styles.priorityButton,
+                isSelected && priorityStyle,
               ]}
-              onPress={() => setPrioridad(opcion)}
+              onPress={() => setPriority(option)}
             >
               <Text
                 style={[
-                  styles.textoPrioridad,
-                  {
-                    color: '#333'
-                  },
-                  seleccionado && styles.textoSeleccionado,
+                  styles.priorityText,
+                  isSelected && styles.selectedText,
                 ]}
               >
-                {opcion}
+                {option}
               </Text>
             </Pressable>
           );
@@ -126,44 +114,44 @@ export default function NuevaTarea({ onGuardar, onCancelar }: Props) {
       </View>
 
       <TouchableOpacity
-        style={styles.botonGuardar}
-        onPress={guardarTarea}
+        style={styles.saveButton}
+        onPress={saveTask}
       >
-        <Text style={styles.textoGuardar}>
+        <Text style={styles.saveButtonText}>
           Guardar tarea
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.botonCancelar}
-        onPress={onCancelar}
+        style={styles.cancelButton}
+        onPress={onCancel}
       >
-        <Text style={styles.textoCancelar}>
+        <Text style={styles.cancelButtonText}>
           Cancelar
         </Text>
       </TouchableOpacity>
 
       <Modal
-        visible={modalVisible}
+        visible={isModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => setIsModalVisible(false)}
       >
-        <View style={styles.fondoModal}>
-          <View style={styles.contenidoModal}>
-            <Text style={styles.tituloModal}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
               Campo obligatorio
             </Text>
 
-            <Text style={styles.mensajeModal}>
-              {mensajeModal}
+            <Text style={styles.modalMessage}>
+              {modalMessage}
             </Text>
 
             <Pressable
-              style={styles.botonAceptar}
-              onPress={() => setModalVisible(false)}
+              style={styles.acceptButton}
+              onPress={() => setIsModalVisible(false)}
             >
-              <Text style={styles.textoAceptar}>
+              <Text style={styles.acceptButtonText}>
                 Aceptar
               </Text>
             </Pressable>
@@ -182,18 +170,18 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
 
-  titulo: {
+  mainTitle: {
     fontSize: 40,
     fontWeight: 'bold',
     marginBottom: 28,
   },
 
-  etiqueta: {
+  label: {
     fontSize: 18,
     marginBottom: 8,
   },
 
-  subtitulo: {
+  subtitle: {
     fontSize: 18,
     marginTop: 22,
     marginBottom: 10,
@@ -207,38 +195,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  areaTexto: {
+  textArea: {
     height: 110,
   },
 
-  opciones: {
+  options: {
     flexDirection: 'row',
     gap: 10,
   },
 
-  botonPrioridad: {
+  priorityButton: {
     flex: 1,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#acabab',
     borderRadius: 8,
     alignItems: 'center',
   },
 
-  prioridadSeleccionada: {
-    backgroundColor: '#DCEAFE',
-    borderColor: '#2196F3',
+  lowPriority: {
+    backgroundColor: '#2878D0',
+    borderColor: '#2878D0',
   },
 
-  textoPrioridad: {
+  mediumPriority: {
+    backgroundColor: '#F2C230',
+    borderColor: '#F2C230',
+  },
+
+  highPriority: {
+    backgroundColor: '#D93636',
+    borderColor: '#D93636',
+  },
+
+  priorityText: {
     fontSize: 16,
+    color: '#333',
   },
 
-  textoSeleccionado: {
-    color: '#fff'
+  selectedText: {
+    color: '#fff',
   },
 
-  botonGuardar: {
+  saveButton: {
     backgroundColor: '#2196F3',
     padding: 15,
     borderRadius: 10,
@@ -246,13 +245,13 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
 
-  textoGuardar: {
+  saveButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
 
-  botonCancelar: {
+  cancelButton: {
     backgroundColor: '#1b1b1c',
     borderRadius: 10,
     padding: 15,
@@ -260,51 +259,51 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  textoCancelar: {
+  cancelButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
 
-  fondoModal: {
-  flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 20,
-},
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
 
-contenidoModal: {
-  width: '100%',
-  maxWidth: 350,
-  backgroundColor: '#FFFFFF',
-  borderRadius: 12,
-  padding: 24,
-  alignItems: 'center',
-},
+  modalContent: {
+    width: '100%',
+    maxWidth: 350,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 24,
+    alignItems: 'center',
+  },
 
-tituloModal: {
-  fontSize: 20,
-  fontWeight: 'bold',
-  marginBottom: 12,
-},
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
 
-mensajeModal: {
-  fontSize: 16,
-  textAlign: 'center',
-  marginBottom: 22,
-},
+  modalMessage: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 22,
+  },
 
-botonAceptar: {
-  backgroundColor: '#2196F3',
-  paddingVertical: 11,
-  paddingHorizontal: 28,
-  borderRadius: 8,
-},
+  acceptButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 11,
+    paddingHorizontal: 28,
+    borderRadius: 8,
+  },
 
-textoAceptar: {
-  color: '#FFFFFF',
-  fontSize: 16,
-  fontWeight: 'bold',
-},
+  acceptButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

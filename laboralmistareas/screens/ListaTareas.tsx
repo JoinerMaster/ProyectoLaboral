@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-type Tarea = {
+type Task = {
   id: string;
   title: string;
   description?: string;
@@ -9,28 +9,28 @@ type Tarea = {
 };
 
 type Props = {
-  tareas: Tarea[];
-  onNuevaTarea: () => void;
-  onVerDetalle: (tarea: Tarea) => void;
+  tasks: Task[];
+  onNewTask: () => void;
+  onViewDetails: (task: Task) => void;
 };
 
-export default function ListaTareas({ tareas, onNuevaTarea, onVerDetalle }: Props) {
+export default function TaskList({ tasks, onNewTask, onViewDetails }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Mis Tareas</Text>
+      <Text style={styles.title}>Mis Tareas</Text>
 
-      <Text style={styles.cantidad}>Cantidad de tareas: {tareas.length}</Text>
+      <Text style={styles.taskCount}>Cantidad de tareas: {tasks.length}</Text>
 
       <FlatList
-        data={tareas}
+        data={tasks}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.tarea}
-            onPress={() => onVerDetalle(item)}
+            style={styles.task}
+            onPress={() => onViewDetails(item)}
           >
-            <Text style={styles.nombre}>{item.title}</Text>
+            <Text style={styles.taskName}>{item.title}</Text>
             <Text>Estado: {item.status}</Text>
           </TouchableOpacity>
         )}
@@ -38,10 +38,10 @@ export default function ListaTareas({ tareas, onNuevaTarea, onVerDetalle }: Prop
       />
 
       <TouchableOpacity
-        style={styles.bottom}
-        onPress={onNuevaTarea}
+        style={styles.addTaskButton}
+        onPress={onNewTask}
       >
-        <Text style={styles.textBottom}>+ Nueva Tarea</Text>
+        <Text style={styles.addTaskButtonText}>+ Nueva Tarea</Text>
       </TouchableOpacity>
     </View>
   );
@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
 
-  titulo: {
+  title: {
     fontSize: 40,
     fontWeight: 'bold',
     marginBottom: 10,
   },
 
-  tarea: {
+  task: {
     padding: 15,
     marginTop: 12,
     borderWidth: 1,
@@ -70,29 +70,29 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
-  cantidad: {
+  taskCount: {
     fontSize: 18,
     marginBottom: 10,
   },
 
-  nombre: {
+  taskName: {
     fontSize: 18,
     fontWeight: 'bold',
   },
 
-  bottom: {
+  addTaskButton: {
     backgroundColor: '#2196F3',
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center', //centralizar la letra
+    alignItems: 'center',
     width: 200,
     height: 60,
-    alignSelf: 'center', //centralizar el boton
+    alignSelf: 'center',
     marginTop: 10,
     marginBottom: 20,
   },
 
-  textBottom: {
+  addTaskButtonText: {
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',

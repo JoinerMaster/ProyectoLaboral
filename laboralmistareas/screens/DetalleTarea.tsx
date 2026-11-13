@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
+import { TaskStatus } from '../enums/TaskStatus';
 
 type Tarea = {
   id: string;
@@ -21,46 +22,46 @@ export default function DetalleTarea({ tarea, onMarcarCompletada, onEliminar,
 
   return (
     <View style={styles.container}>
-      <Text style={styles.tituloPrincipal}>Detalle</Text>
+      <Text style={styles.mainTitle}>Detalle</Text>
 
-      <Text style={styles.tituloTarea}>
+      <Text style={styles.taskTitle}>
         {tarea.title}
       </Text>
 
-      <Text style={styles.descripcion}>
+      <Text style={styles.description}>
         {tarea.description}
       </Text>
 
-      <Text style={styles.etiqueta}>Estado</Text>
+      <Text style={styles.label}>Estado</Text>
 
-      <View style={styles.estado}>
-        <Text style={styles.textoEstado}>
+      <View style={styles.status}>
+        <Text style={styles.statusText}>
           {tarea.status}
         </Text>
       </View>
 
-      <View style={styles.botones}>
+      <View style={styles.buttons}>
         <TouchableOpacity
           style={[
-            styles.botonCompletar,
-            tarea.status === 'Completada' &&
-            styles.botonDeshabilitado,
+            styles.completeButton,
+            tarea.status === TaskStatus.Completed &&
+            styles.disabledButton,
           ]}
           onPress={onMarcarCompletada}
-          disabled={tarea.status === 'Completada'}
+          disabled={tarea.status === TaskStatus.Completed}
         >
-          <Text style={styles.textoBoton}>
-            {tarea.status === 'Completada'
+          <Text style={styles.buttonText}>
+            {tarea.status === TaskStatus.Completed
               ? 'Tarea completada'
               : 'Marcar completada'}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.botonEliminar}
+          style={styles.deleteButton}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={styles.textoBoton}>
+          <Text style={styles.buttonText}>
             Eliminar
           </Text>
         </TouchableOpacity>
@@ -72,32 +73,32 @@ export default function DetalleTarea({ tarea, onMarcarCompletada, onEliminar,
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.fondoModal}>
-          <View style={styles.contenidoModal}>
-            <Text style={styles.tituloModal}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
               Eliminar tarea
             </Text>
 
-            <Text style={styles.textoModal}>
+            <Text style={styles.modalText}>
               ¿Estás seguro de que deseas eliminar
               esta tarea?
             </Text>
 
-            <View style={styles.opcionesModal}>
+            <View style={styles.modalOptions}>
               <Pressable
-                style={styles.botonCancelar}
+                style={styles.cancelButton}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.textoCancelar}>
+                <Text style={styles.cancelText}>
                   Cancelar
                 </Text>
               </Pressable>
 
               <Pressable
-                style={styles.botonConfirmar}
+                style={styles.confirmButton}
                 onPress={onEliminar}
               >
-                <Text style={styles.textoBoton}>
+                <Text style={styles.buttonText}>
                   Eliminar
                 </Text>
               </Pressable>
@@ -117,33 +118,33 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
 
-  tituloPrincipal: {
+  mainTitle: {
     fontSize: 40,
     fontWeight: 'bold',
     color: '#111827',
     marginBottom: 18,
   },
 
-  tituloTarea: {
+  taskTitle: {
     fontSize: 23,
     fontWeight: 'bold',
     color: '#111827',
     marginBottom: 14,
   },
 
-  descripcion: {
+  description: {
     fontSize: 16,
     color: '#475569',
     marginBottom: 34,
   },
 
-  etiqueta: {
+  label: {
     fontSize: 16,
     color: '#374151',
     marginBottom: 10,
   },
 
-  estado: {
+  status: {
     backgroundColor: '#DCFCE7',
     paddingVertical: 14,
     paddingHorizontal: 18,
@@ -152,42 +153,42 @@ const styles = StyleSheet.create({
     minWidth: 170,
   },
 
-  textoEstado: {
+  statusText: {
     fontSize: 16,
     color: '#166534',
   },
 
-  botones: {
+  buttons: {
     marginTop: 55,
     gap: 20,
   },
 
-  botonCompletar: {
+  completeButton: {
     backgroundColor: '#16A34A',
     padding: 16,
     borderRadius: 14,
     alignItems: 'center',
   },
 
-  botonDeshabilitado: {
+  disabledButton: {
     opacity: 0.65,
   },
 
-  botonEliminar: {
+  deleteButton: {
     backgroundColor: '#EF4444',
     padding: 16,
     borderRadius: 14,
     alignItems: 'center',
   },
 
-  textoBoton: {
+  buttonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
   },
 
-  fondoModal: {
+  modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
 
-  contenidoModal: {
+  modalContent: {
     width: '100%',
     maxWidth: 350,
     backgroundColor: '#FFFFFF',
@@ -203,20 +204,20 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
 
-  tituloModal: {
+  modalTitle: {
     fontSize: 21,
     fontWeight: 'bold',
     color: '#111827',
     marginBottom: 12,
   },
 
-  textoModal: {
+  modalText: {
     fontSize: 16,
     color: '#475569',
     marginBottom: 24,
   },
 
-  opcionesModal: {
+  modalOptions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
 
-  botonCancelar: {
+  cancelButton: {
     backgroundColor: '#1b1b1c',
     borderRadius: 11,
     padding: 16,
@@ -232,13 +233,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
 
-  textoCancelar: {
+  cancelText: {
     color: '#eaedf2',
     fontWeight: 'bold',
     fontSize: 17,
   },
   
-  botonConfirmar: {
+  confirmButton: {
     backgroundColor: '#e82c2c',
     paddingVertical: 12,
     paddingHorizontal: 16,

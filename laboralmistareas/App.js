@@ -1,68 +1,69 @@
 import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import ListaTareas from './screens/ListaTareas';
-import NuevaTarea from './screens/NuevaTarea';
+import TaskList from './screens/ListaTareas';
+import NewTask from './screens/NuevaTarea';
 import DetalleTarea from './screens/DetalleTarea';
+import { TaskStatus } from './enums/TaskStatus';
 
 export default function App() {
-  const [pantalla, setPantalla] = useState('lista');
-  const [tareas, setTareas] = useState([]);
-  const [tareaSeleccionada, setTareaSeleccionada] = useState(null);
+  const [currentScreen, setCurrentScreen] = useState('list');
+  const [tasks, setTasks] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null);
 
-  const guardarTarea = (tarea) => {
-    setTareas((anteriores) => [...anteriores, tarea]);
-    setPantalla('lista');
+  const saveTask = (task) => {
+    setTasks((previousTasks) => [...previousTasks, task]);
+    setCurrentScreen('list');
   };
 
-  const marcarCompletada = () => {
-    setTareas((anteriores) =>
-      anteriores.map((tarea) =>
-        tarea.id === tareaSeleccionada.id
-          ? { ...tarea, status: 'Completada' }
-          : tarea
+  const markTaskAsCompleted = () => {
+    setTasks((previousTasks) =>
+      previousTasks.map((task) =>
+        task.id === selectedTask.id
+          ? { ...task, status: TaskStatus.Completed }
+          : task
       )
     );
 
-    setTareaSeleccionada((anterior) => ({
-      ...anterior,
-      status: 'Completada',
+    setSelectedTask((previousTask) => ({
+      ...previousTask,
+      status: TaskStatus.Completed,
     }));
 
-    setPantalla('lista');
+    setCurrentScreen('list');
   };
 
-  const eliminarTarea = () => {
-    setTareas((anteriores) =>
-      anteriores.filter(
-        (tarea) => tarea.id !== tareaSeleccionada.id
+  const deleteTask = () => {
+    setTasks((previousTasks) =>
+      previousTasks.filter(
+        (task) => task.id !== selectedTask.id
       )
     );
 
-    setTareaSeleccionada(null);
-    setPantalla('lista');
+    setSelectedTask(null);
+    setCurrentScreen('list');
   };
 
   return (
     <>
-      {pantalla === 'lista' ? (
-        <ListaTareas
-          tareas={tareas}
-          onNuevaTarea={() => setPantalla('nueva')}
-          onVerDetalle={(tarea) => {
-            setTareaSeleccionada(tarea);
-            setPantalla('detalle');
+      {currentScreen === 'list' ? (
+        <TaskList
+          tasks={tasks}
+          onNewTask={() => setCurrentScreen('new')}
+          onViewDetails={(task) => {
+            setSelectedTask(task);
+            setCurrentScreen('detail');
           }}
         />
-      ) : pantalla === 'nueva' ? (
-        <NuevaTarea
-          onGuardar={guardarTarea}
-          onCancelar={() => setPantalla('lista')}
+      ) : currentScreen === 'new' ? (
+        <NewTask
+          onSave={saveTask}
+          onCancel={() => setCurrentScreen('list')}
         />
       ) : (
         <DetalleTarea
-          tarea={tareaSeleccionada}
-          onMarcarCompletada={marcarCompletada}
-          onEliminar={eliminarTarea}
+          tarea={selectedTask}
+          onMarcarCompletada={markTaskAsCompleted}
+          onEliminar={deleteTask}
         />
       )}
 
